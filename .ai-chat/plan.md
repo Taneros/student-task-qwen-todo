@@ -1,0 +1,138 @@
+## Plan: Critical Production Refactoring
+
+Implement high-priority architectural improvements for production readiness, combining context splitting, error handling, constants extraction, and performance optimizations.
+
+**TL;DR - Start with constants extraction, then split contexts, add error handling, extract hooks, and implement selectors for better maintainability and performance.**
+
+### Steps
+
+#### **Phase 1: Constants Consolidation (HIGH PRIORITY - Start Here)**
+1. **Create Constants File**
+   - Extract all magic numbers (timeouts, limits, DB config, etc.)
+   - Centralize configuration values and error messages
+   - Make values easily configurable and testable
+
+2. **Update All Files to Use Constants**
+   - Replace hardcoded values in TodoContext, ToastContext, TodoForm
+   - Update storageService, useTodoFilters, ErrorBoundary
+   - Ensure consistent imports across the codebase
+
+#### **Phase 2: Context Splitting (HIGH PRIORITY)**
+1. **Create TodoDataContext**
+   - Extract todos state, CRUD operations (addTodo, deleteTodo, undoDeleteTodo, updateTodo, toggleComplete)
+   - Keep loading/error states for data operations
+   - Remove filters and UI-related state
+
+2. **Create TodoUIContext**
+   - Extract filters state and setFilters function
+   - Handle UI-specific loading states if needed
+   - Keep search/filter logic separate from data operations
+
+3. **Update Components**
+   - Modify TodoForm to use TodoDataContext for addTodo
+   - Modify TodoList to use TodoDataContext for todos + TodoUIContext for filters
+   - Modify TodoFilters to use TodoUIContext for filters
+   - Update all imports and context consumers
+
+#### **Phase 3: Error Handling Strategy (HIGH PRIORITY)**
+1. **Create Error Handling Utilities**
+   - Define error types and factory functions
+   - Create error boundary with error reporting
+   - Add retry mechanisms for failed operations
+
+2. **Update Storage Layer**
+   - Add retry logic for IndexedDB operations
+   - Better error categorization (network, storage, validation)
+   - Graceful degradation strategies
+
+3. **Update Components**
+   - Add error states to forms and lists
+   - Implement retry buttons for failed operations
+   - Add user-friendly error messages
+
+#### **Phase 4: Input Validation & Sanitization (HIGH PRIORITY)**
+1. **Create Validation Utilities**
+   - Input sanitization functions (trim, escape, length limits)
+   - Validation schemas for todos and filters
+   - Type checking and bounds validation
+
+2. **Update TodoForm**
+   - Add real-time validation feedback
+   - Sanitize inputs before submission
+   - Prevent invalid submissions
+
+3. **Update Filters**
+   - Validate filter parameters
+   - Sanitize search queries
+   - Prevent XSS in search terms
+
+#### **Phase 5: Custom Hooks Extraction (MEDIUM PRIORITY)**
+1. **Extract TodoItem Logic**
+   - Create useTodoActions hook for delete/undo logic
+   - Extract date formatting logic to useTodoDisplay
+   - Separate business logic from presentation
+
+2. **Extract Form Logic**
+   - Create useTodoForm hook for form state and validation
+   - Extract submission logic
+   - Add form reset and validation state
+
+3. **Extract Filter Logic**
+   - Create useFilterActions hook for filter state management
+   - Extract search debouncing logic
+   - Separate filter operations from UI
+
+#### **Phase 6: State Selectors (MEDIUM PRIORITY)**
+1. **Create Selector Hooks**
+   - useTodoData: Select specific todo data without full re-renders
+   - useFilterState: Select filter state efficiently
+   - useUIState: Select UI-specific state
+
+2. **Optimize Re-renders**
+   - Use selector hooks in components
+   - Reduce dependency arrays in useMemo/useCallback
+   - Implement shallow comparison where possible
+
+### Relevant files
+- `src/constants/constants.js` — New constants file (renamed from app.js for clarity)
+- `src/context/TodoDataContext.jsx` — New context for data operations
+- `src/context/TodoUIContext.jsx` — New context for UI state
+- `src/utils/errorHandling.js` — Error handling utilities
+- `src/utils/validation.js` — Input validation and sanitization
+- `src/hooks/useTodoActions.js` — Extracted todo item logic
+- `src/hooks/useTodoForm.js` — Extracted form logic
+- `src/hooks/useFilterActions.js` — Extracted filter logic
+- `src/hooks/useSelectors.js` — State selector hooks
+- `src/components/TodoForm/TodoForm.jsx` — Updated with validation
+- `src/components/TodoItem.jsx` — Updated with extracted hooks
+- `src/components/TodoFilters/TodoFilters.jsx` — Updated with extracted hooks
+- `src/services/storageService.js` — Updated with constants and error handling
+- `src/hooks/useTodoFilters.js` — Updated with constants
+- `src/utils/ErrorBoundary.jsx` — Updated with constants
+
+### Verification
+1. **Constants**: All magic numbers extracted, files updated to use constants
+2. **Context Splitting**: Components work with separate contexts, no functionality lost
+3. **Error Handling**: Test error scenarios (network failure, storage issues), verify graceful degradation
+4. **Validation**: Test invalid inputs, XSS attempts, boundary conditions
+5. **Custom Hooks**: Components simplified, business logic properly extracted
+6. **Performance**: Check re-render counts reduced, bundle size maintained
+7. **Functionality**: All existing features work (CRUD, filtering, undo, search, etc.)
+8. **Build & Lint**: All tests pass, no linting errors introduced
+
+### Decisions
+- **Constants First**: Start with constants extraction to eliminate magic numbers before other refactoring
+- **Context Splitting**: TodoDataContext for data operations, TodoUIContext for filters - clean separation
+- **Error Strategy**: Categorize errors (network, storage, validation) with user-friendly messages
+- **Validation**: Client-side validation with sanitization, server-ready for future API
+- **Selectors**: Custom hooks returning memoized selectors to prevent unnecessary re-renders
+- **Hooks**: Extract complex logic while maintaining simplicity and reusability
+- **File Naming**: Use constants.js instead of app.js for clarity
+
+### Success Criteria
+- ✅ All existing functionality preserved
+- ✅ Improved performance (fewer re-renders)
+- ✅ Better error handling and user experience
+- ✅ More maintainable and testable code
+- ✅ Production-ready input validation
+- ✅ Centralized configuration management

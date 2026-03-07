@@ -1,7 +1,9 @@
 // IndexedDB service for storage abstraction
-const DB_NAME = 'TodoDB';
-const DB_VERSION = 1;
-const STORE_NAME = 'todos';
+import { DATABASE } from '../constants/constants';
+
+const DB_NAME = DATABASE.NAME;
+const DB_VERSION = DATABASE.VERSION;
+const STORE_NAME = DATABASE.STORE_NAME;
 
 /**
  * Open IndexedDB database

@@ -1,4 +1,5 @@
 import React from 'react';
+import { TOAST } from '../../constants/constants';
 import styles from './Toast.module.css';
 
 /* eslint-disable react-hooks/exhaustive-deps */
@@ -13,7 +14,7 @@ import styles from './Toast.module.css';
  * @param {number} props.duration - Auto-dismiss duration in milliseconds (default: 8000)
  * @returns {JSX.Element}
  */
-const Toast = ({ message, actionText, onAction, onDismiss, duration = 8000 }) => {
+const Toast = ({ message, actionText, onAction, onDismiss, duration = TOAST.DEFAULT_DURATION }) => {
   const [isVisible, setIsVisible] = React.useState(false);
   const [progress, setProgress] = React.useState(100);
   const timeoutRef = React.useRef(null);
@@ -26,7 +27,7 @@ const Toast = ({ message, actionText, onAction, onDismiss, duration = 8000 }) =>
     setIsVisible(false);
     setTimeout(() => {
       onAction();
-    }, 300); // Wait for exit animation
+    }, TOAST.ANIMATION_BUFFER); // Wait for exit animation
   }, [onAction]);
 
   const handleDismiss = React.useCallback(() => {
@@ -35,7 +36,7 @@ const Toast = ({ message, actionText, onAction, onDismiss, duration = 8000 }) =>
     setIsVisible(false);
     setTimeout(() => {
       onDismiss();
-    }, 300); // Wait for exit animation
+    }, TOAST.ANIMATION_BUFFER); // Wait for exit animation
   }, [onDismiss]);
 
   // Update ref when handleDismiss changes

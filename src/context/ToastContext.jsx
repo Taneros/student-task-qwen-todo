@@ -1,5 +1,6 @@
 import React from 'react';
 import Toast from '../components/Toast/Toast';
+import { TOAST } from '../constants/constants';
 
 /**
  * @typedef {Object} ToastItem
@@ -21,7 +22,7 @@ const ToastContext = React.createContext(null);
 export const ToastProvider = ({ children }) => {
   const [toasts, setToasts] = React.useState([]);
 
-  const addToast = React.useCallback((message, actionText, onAction, duration = 8000) => {
+  const addToast = React.useCallback((message, actionText, onAction, duration = TOAST.DEFAULT_DURATION) => {
     const id = Date.now().toString();
     const toast = {
       id,

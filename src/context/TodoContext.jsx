@@ -1,5 +1,6 @@
 import React from 'react';
 import { useLocalStorage } from '../hooks/useLocalStorage';
+import { TODO_DELETION, DEFAULT_FILTERS } from '../constants/constants';
 
 /**
  * @typedef {Object} Todo
@@ -41,13 +42,7 @@ const TodoContext = React.createContext(null);
 export const TodoProvider = ({ children }) => {
   const initialTodos = React.useMemo(() => [], []);
   const [todos, setTodos, { isLoading: todosLoading, error: todosError }] = useLocalStorage('todos', initialTodos);
-  const [filters, setFilters] = React.useState({
-    search: '',
-    status: 'all', // 'all', 'active', 'completed'
-    dueDate: 'all', // 'all', 'noDueDate', 'overdue', 'dueToday', 'dueThisWeek', 'upcoming'
-    sortBy: 'created', // 'created', 'name', 'dueDate'
-    sortOrder: 'asc'
-  });
+  const [filters, setFilters] = React.useState(DEFAULT_FILTERS);
 
   // Temporary deleted todos for undo functionality
   const [deletedTodos, setDeletedTodos] = React.useState(new Map());
@@ -99,7 +94,7 @@ export const TodoProvider = ({ children }) => {
       setDeletedTodos(prev => {
         const newMap = new Map();
         for (const [id, todo] of prev) {
-          if (now - todo.deletedAt < 10000) { // 10 seconds
+          if (now - todo.deletedAt < TODO_DELETION.UNDO_TIMEOUT) {
             newMap.set(id, todo);
           }
         }
@@ -107,7 +102,7 @@ export const TodoProvider = ({ children }) => {
       });
     };
 
-    const interval = setInterval(cleanup, 1000);
+    const interval = setInterval(cleanup, TODO_DELETION.CLEANUP_INTERVAL);
     return () => clearInterval(interval);
   }, []);
 

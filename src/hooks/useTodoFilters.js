@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { useDebounce } from './useDebounce';
+import { SEARCH } from '../constants/constants';
 
 /**
  * Custom hook for optimized filtering, searching, and sorting
@@ -9,7 +10,7 @@ import { useDebounce } from './useDebounce';
  */
 export const useTodoFilters = (todos, filters) => {
   // Debounce search to prevent excessive recalculations
-  const debouncedSearch = useDebounce(filters.search, 300);
+  const debouncedSearch = useDebounce(filters.search, SEARCH.DEBOUNCE_DELAY);
 
   const filteredTodos = useMemo(() => {
     let result = todos;

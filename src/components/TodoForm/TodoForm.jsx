@@ -1,5 +1,6 @@
 import React from 'react';
 import { useTodos } from '../../context/TodoContext';
+import { FORM_VALIDATION } from '../../constants/constants';
 import styles from './TodoForm.module.css';
 
 /**
@@ -34,11 +35,11 @@ const TodoForm = () => {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             className={styles.input}
-            maxLength={200}
+            maxLength={FORM_VALIDATION.TODO_MAX_LENGTH}
             aria-describedby="todo-help"
           />
           <span id="todo-help" className={styles.help}>
-            Max 200 characters
+            Max {FORM_VALIDATION.TODO_MAX_LENGTH} characters
           </span>
         </div>
         <div className={styles.inputWrapper}>

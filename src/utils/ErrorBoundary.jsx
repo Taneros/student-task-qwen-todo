@@ -1,4 +1,5 @@
 import React from 'react';
+import { ERROR_BOUNDARY_STYLES } from '../constants/constants';
 
 /**
  * Error Boundary component for catching JavaScript errors
@@ -20,19 +21,11 @@ class ErrorBoundary extends React.Component {
   render() {
     if (this.state.hasError) {
       return (
-        <div role="alert" style={{
-          padding: '2rem',
-          textAlign: 'center',
-          color: '#721c24',
-          backgroundColor: '#f8d7da',
-          border: '1px solid #f5c6cb',
-          borderRadius: '8px',
-          margin: '2rem'
-        }}>
+        <div role="alert" style={ERROR_BOUNDARY_STYLES.CONTAINER}>
           <h2>Something went wrong</h2>
-          <details style={{ marginTop: '1rem', textAlign: 'left' }}>
+          <details style={ERROR_BOUNDARY_STYLES.DETAILS}>
             <summary>Error details</summary>
-            <pre style={{ whiteSpace: 'pre-wrap', fontSize: '0.875rem' }}>
+            <pre style={ERROR_BOUNDARY_STYLES.ERROR_TEXT}>
               {this.state.error?.toString()}
             </pre>
           </details>
