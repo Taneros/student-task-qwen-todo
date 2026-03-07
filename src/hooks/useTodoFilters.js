@@ -1,0 +1,56 @@
+import { useMemo } from 'react';
+import { useDebounce } from './useDebounce';
+
+/**
+ * Custom hook for optimized filtering, searching, and sorting
+ * @param {import('../context/TodoContext').Todo[]} todos - Todos array
+ * @param {import('../context/TodoContext').TodoState['filters']} filters - Filters object
+ * @returns {import('../context/TodoContext').Todo[]} Filtered and sorted todos
+ */
+export const useTodoFilters = (todos, filters) => {
+  // Debounce search to prevent excessive recalculations
+  const debouncedSearch = useDebounce(filters.search, 300);
+
+  const filteredTodos = useMemo(() => {
+    let result = todos;
+
+    // 1. Status filter
+    if (filters.status === 'active') {
+      result = result.filter(todo => !todo.completed);
+    } else if (filters.status === 'completed') {
+      result = result.filter(todo => todo.completed);
+    }
+
+    // 2. Search filter (case-insensitive)
+    if (debouncedSearch) {
+      const searchLower = debouncedSearch.toLowerCase();
+      result = result.filter(todo =>
+        todo.text.toLowerCase().includes(searchLower)
+      );
+    }
+
+    // 3. Sorting
+    result = result.sort((a, b) => {
+      let compareValue = 0;
+
+      switch (filters.sortBy) {
+        case 'name':
+          compareValue = a.text.localeCompare(b.text);
+          break;
+        case 'dueDate':
+          compareValue = new Date(a.dueDate || Infinity) -
+                         new Date(b.dueDate || Infinity);
+          break;
+        case 'created':
+        default:
+          compareValue = new Date(b.createdAt) - new Date(a.createdAt);
+      }
+
+      return filters.sortOrder === 'desc' ? -compareValue : compareValue;
+    });
+
+    return result;
+  }, [todos, filters, debouncedSearch]);
+
+  return filteredTodos;
+};

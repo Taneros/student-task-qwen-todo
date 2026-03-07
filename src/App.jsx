@@ -1,35 +1,32 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React from 'react';
+import { TodoProvider } from './context/TodoContext';
+import TodoForm from './components/TodoForm/TodoForm';
+import TodoList from './components/TodoList/TodoList';
+import TodoFilters from './components/TodoFilters/TodoFilters';
+import ErrorBoundary from './utils/ErrorBoundary';
+import './App.css';
 
+/**
+ * Main App component
+ * @returns {JSX.Element}
+ */
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <ErrorBoundary>
+      <TodoProvider>
+        <div className="App">
+          <header className="App-header">
+            <h1>My Todo App</h1>
+          </header>
+          <main className="App-main">
+            <TodoForm />
+            <TodoFilters />
+            <TodoList />
+          </main>
+        </div>
+      </TodoProvider>
+    </ErrorBoundary>
+  );
 }
 
-export default App
+export default App;
