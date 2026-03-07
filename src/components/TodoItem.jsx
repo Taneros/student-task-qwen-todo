@@ -2,6 +2,34 @@ import React from 'react';
 import { useTodos } from '../context/TodoContext';
 import styles from './TodoItem.module.css';
 
+// Helper functions
+const formatDate = (dateString) => {
+  if (!dateString) return null;
+  const date = new Date(dateString);
+  return date.toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric'
+  });
+};
+
+const getDueDateStatus = (dateString) => {
+  if (!dateString) return null;
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const dueDate = new Date(dateString);
+  dueDate.setHours(0, 0, 0, 0);
+  
+  const diffTime = dueDate - today;
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  
+  if (diffDays < 0) return 'overdue';
+  if (diffDays === 0) return 'today';
+  if (diffDays === 1) return 'tomorrow';
+  if (diffDays <= 7) return 'upcoming';
+  return null;
+};
+
 /**
  * TodoItem component for individual todo display
  * @param {Object} props
@@ -19,6 +47,9 @@ const TodoItem = React.memo(({ todo }) => {
     deleteTodo(todo.id);
   }, [todo.id, deleteTodo]);
 
+  const dueDateStatus = getDueDateStatus(todo.dueDate);
+  const formattedDate = formatDate(todo.dueDate);
+
   return (
     <li className={styles.item}>
       <input
@@ -28,9 +59,16 @@ const TodoItem = React.memo(({ todo }) => {
         className={styles.checkbox}
         aria-label={`Mark "${todo.text}" as ${todo.completed ? 'incomplete' : 'complete'}`}
       />
-      <span className={`${styles.text} ${todo.completed ? styles.completed : ''}`}>
-        {todo.text}
-      </span>
+      <div className={styles.content}>
+        <span className={`${styles.text} ${todo.completed ? styles.completed : ''}`}>
+          {todo.text}
+        </span>
+        {formattedDate && (
+          <span className={`${styles.dueDate} ${styles[dueDateStatus] || ''}`}>
+            Due: {formattedDate}
+          </span>
+        )}
+      </div>
       <button
         onClick={handleDelete}
         className={styles.deleteBtn}

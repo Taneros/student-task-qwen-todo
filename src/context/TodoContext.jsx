@@ -16,6 +16,7 @@ import { useLocalStorage } from '../hooks/useLocalStorage';
  * @property {Object} filters - Current filters
  * @property {string} filters.search - Search query
  * @property {'all'|'active'|'completed'} filters.status - Status filter
+ * @property {'all'|'noDueDate'|'overdue'|'dueToday'|'dueThisWeek'|'upcoming'} filters.dueDate - Due date filter
  * @property {'created'|'name'|'dueDate'} filters.sortBy - Sort field
  * @property {'asc'|'desc'} filters.sortOrder - Sort order
  */
@@ -42,6 +43,7 @@ export const TodoProvider = ({ children }) => {
   const [filters, setFilters] = React.useState({
     search: '',
     status: 'all', // 'all', 'active', 'completed'
+    dueDate: 'all', // 'all', 'noDueDate', 'overdue', 'dueToday', 'dueThisWeek', 'upcoming'
     sortBy: 'created', // 'created', 'name', 'dueDate'
     sortOrder: 'asc'
   });
@@ -96,6 +98,7 @@ export const TodoProvider = ({ children }) => {
  * Custom hook to use TodoContext
  * @returns {TodoState & TodoActions & {isLoading: boolean, error: Object|null}}
  */
+// eslint-disable-next-line react-refresh/only-export-components
 export const useTodos = () => {
   const context = React.useContext(TodoContext);
   if (!context) {

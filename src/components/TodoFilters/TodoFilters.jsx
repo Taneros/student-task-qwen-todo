@@ -21,6 +21,10 @@ const TodoFilters = () => {
     setFilters({ sortBy: e.target.value });
   }, [setFilters]);
 
+  const handleDueDateChange = React.useCallback((e) => {
+    setFilters({ dueDate: e.target.value });
+  }, [setFilters]);
+
   const handleSortOrderChange = React.useCallback((e) => {
     setFilters({ sortOrder: e.target.value });
   }, [setFilters]);
@@ -55,12 +59,24 @@ const TodoFilters = () => {
           <option value="active">Active</option>
           <option value="completed">Completed</option>
         </select>
-      </div>
-
       <div className={styles.filterGroup}>
-        <label htmlFor="sortBy" className={styles.label}>
-          Sort by:
+        <label htmlFor="dueDate" className={styles.label}>
+          Due Date:
         </label>
+        <select
+          id="dueDate"
+          value={filters.dueDate}
+          onChange={handleDueDateChange}
+          className={styles.select}
+        >
+          <option value="all">All</option>
+          <option value="noDueDate">No Due Date</option>
+          <option value="overdue">Overdue</option>
+          <option value="dueToday">Due Today</option>
+          <option value="dueThisWeek">Due This Week</option>
+          <option value="upcoming">Upcoming</option>
+        </select>
+      </div>
         <select
           id="sortBy"
           value={filters.sortBy}

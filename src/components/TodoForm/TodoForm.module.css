@@ -14,6 +14,18 @@
   color: #333;
 }
 
+.inputGroup {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 1rem;
+}
+
+.inputWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
 .input {
   padding: 0.75rem;
   border: 1px solid #ccc;
@@ -46,6 +58,12 @@
 
 .button:hover {
   background-color: #0056b3;
+}
+
+@media (max-width: 640px) {
+  .inputGroup {
+    grid-template-columns: 1fr;
+  }
 }
 
 .button:focus {

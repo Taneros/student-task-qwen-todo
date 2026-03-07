@@ -19,10 +19,17 @@
   height: 1.25rem;
   cursor: pointer;
   accent-color: #28a745;
+  flex-shrink: 0;
+}
+
+.content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
 }
 
 .text {
-  flex: 1;
   word-break: break-word;
   font-size: 1rem;
   color: #333;
@@ -31,6 +38,30 @@
 .text.completed {
   text-decoration: line-through;
   color: #6c757d;
+}
+
+.dueDate {
+  font-size: 0.75rem;
+  color: #666;
+  font-weight: 500;
+}
+
+.dueDate.overdue {
+  color: #dc3545;
+  font-weight: 600;
+}
+
+.dueDate.today {
+  color: #ff6b6b;
+  font-weight: 600;
+}
+
+.dueDate.tomorrow {
+  color: #ffa94d;
+}
+
+.dueDate.upcoming {
+  color: #4dabf7;
 }
 
 .deleteBtn {
@@ -42,10 +73,41 @@
   cursor: pointer;
   font-size: 0.875rem;
   transition: background-color 0.2s;
+  flex-shrink: 0;
 }
 
 .deleteBtn:hover {
   background-color: #c82333;
+}
+
+.deleteBtn:focus {
+  outline: 2px solid #dc3545;
+  outline-offset: 2px;
+}
+
+@media (max-width: 640px) {
+  .item {
+    padding: 0.75rem;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  .content {
+    flex-basis: 100%;
+    order: 2;
+  }
+
+  .text {
+    font-size: 0.875rem;
+  }
+
+  .checkbox {
+    order: 1;
+  }
+
+  .deleteBtn {
+    order: 3;
+  }
 }
 
 .deleteBtn:focus {

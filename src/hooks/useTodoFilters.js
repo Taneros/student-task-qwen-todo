@@ -21,7 +21,39 @@ export const useTodoFilters = (todos, filters) => {
       result = result.filter(todo => todo.completed);
     }
 
-    // 2. Search filter (case-insensitive)
+    // 2. Due date filter
+    if (filters.dueDate !== 'all') {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const nextWeek = new Date(today);
+      nextWeek.setDate(today.getDate() + 7);
+
+      result = result.filter(todo => {
+        if (!todo.dueDate) {
+          return filters.dueDate === 'noDueDate';
+        }
+
+        const dueDate = new Date(todo.dueDate);
+        dueDate.setHours(0, 0, 0, 0);
+
+        switch (filters.dueDate) {
+          case 'noDueDate':
+            return !todo.dueDate;
+          case 'overdue':
+            return dueDate < today;
+          case 'dueToday':
+            return dueDate.getTime() === today.getTime();
+          case 'dueThisWeek':
+            return dueDate >= today && dueDate <= nextWeek;
+          case 'upcoming':
+            return dueDate > nextWeek;
+          default:
+            return true;
+        }
+      });
+    }
+
+    // 3. Search filter (case-insensitive)
     if (debouncedSearch) {
       const searchLower = debouncedSearch.toLowerCase();
       result = result.filter(todo =>
@@ -29,7 +61,7 @@ export const useTodoFilters = (todos, filters) => {
       );
     }
 
-    // 3. Sorting
+    // 4. Sorting
     result = result.sort((a, b) => {
       let compareValue = 0;
 
