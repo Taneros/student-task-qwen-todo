@@ -25,6 +25,7 @@ import { useLocalStorage } from '../hooks/useLocalStorage';
  * @typedef {Object} TodoActions
  * @property {(text: string, dueDate?: string|null) => void} addTodo - Add new todo
  * @property {(id: number) => void} deleteTodo - Delete todo by id
+ * @property {(id: number) => void} undoDeleteTodo - Undo delete todo by id
  * @property {(id: number, updates: Partial<Todo>) => void} updateTodo - Update todo
  * @property {(filters: Partial<TodoState['filters']>) => void} setFilters - Update filters
  */
@@ -48,6 +49,9 @@ export const TodoProvider = ({ children }) => {
     sortOrder: 'asc'
   });
 
+  // Temporary deleted todos for undo functionality
+  const [deletedTodos, setDeletedTodos] = React.useState(new Map());
+
   const addTodo = React.useCallback((text, dueDate = null) => {
     const newTodo = {
       id: Date.now(),
@@ -60,8 +64,52 @@ export const TodoProvider = ({ children }) => {
   }, [setTodos]);
 
   const deleteTodo = React.useCallback((id) => {
+    const todoToDelete = todos.find(todo => todo.id === id);
+    if (!todoToDelete) return;
+
+    // Move to temporary deleted state
+    setDeletedTodos(prev => new Map(prev.set(id, {
+      ...todoToDelete,
+      deletedAt: Date.now()
+    })));
+
+    // Remove from active todos
     setTodos(prev => prev.filter(todo => todo.id !== id));
-  }, [setTodos]);
+  }, [todos]);
+
+  const undoDeleteTodo = React.useCallback((id) => {
+    const deletedTodo = deletedTodos.get(id);
+    if (!deletedTodo) return;
+
+    // Restore to active todos
+    setTodos(prev => [deletedTodo, ...prev]);
+
+    // Remove from deleted todos
+    setDeletedTodos(prev => {
+      const newMap = new Map(prev);
+      newMap.delete(id);
+      return newMap;
+    });
+  }, [deletedTodos]);
+
+  // Cleanup expired deleted todos (older than 10 seconds)
+  React.useEffect(() => {
+    const cleanup = () => {
+      const now = Date.now();
+      setDeletedTodos(prev => {
+        const newMap = new Map();
+        for (const [id, todo] of prev) {
+          if (now - todo.deletedAt < 10000) { // 10 seconds
+            newMap.set(id, todo);
+          }
+        }
+        return newMap;
+      });
+    };
+
+    const interval = setInterval(cleanup, 1000);
+    return () => clearInterval(interval);
+  }, []);
 
   const updateTodo = React.useCallback((id, updates) => {
     setTodos(prev =>
@@ -81,11 +129,12 @@ export const TodoProvider = ({ children }) => {
     setFilters,
     addTodo,
     deleteTodo,
+    undoDeleteTodo,
     updateTodo,
     toggleComplete,
     isLoading: todosLoading,
     error: todosError,
-  }), [todos, filters, addTodo, deleteTodo, updateTodo, toggleComplete, todosLoading, todosError]);
+  }), [todos, filters, addTodo, deleteTodo, undoDeleteTodo, updateTodo, toggleComplete, todosLoading, todosError]);
 
   return (
     <TodoContext.Provider value={value}>

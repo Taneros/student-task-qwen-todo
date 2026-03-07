@@ -1,5 +1,6 @@
 import React from 'react';
 import { useTodos } from '../context/TodoContext';
+import { useToast } from '../context/ToastContext';
 import styles from './TodoItem.module.css';
 
 // Helper functions
@@ -37,15 +38,24 @@ const getDueDateStatus = (dateString) => {
  * @returns {JSX.Element}
  */
 const TodoItem = React.memo(({ todo }) => {
-  const { updateTodo, deleteTodo } = useTodos();
+  const { updateTodo, deleteTodo, undoDeleteTodo } = useTodos();
+  const { addToast } = useToast();
 
   const handleToggle = React.useCallback(() => {
     updateTodo(todo.id, { completed: !todo.completed });
   }, [todo.id, todo.completed, updateTodo]);
 
   const handleDelete = React.useCallback(() => {
+    // Move to temporary deleted state
     deleteTodo(todo.id);
-  }, [todo.id, deleteTodo]);
+
+    // Show undo toast
+    addToast(
+      `"${todo.text.length > 30 ? todo.text.substring(0, 30) + '...' : todo.text}" was deleted`,
+      'Undo',
+      () => undoDeleteTodo(todo.id)
+    );
+  }, [todo.id, todo.text, deleteTodo, undoDeleteTodo, addToast]);
 
   const dueDateStatus = getDueDateStatus(todo.dueDate);
   const formattedDate = formatDate(todo.dueDate);

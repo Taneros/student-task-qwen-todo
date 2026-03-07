@@ -1,5 +1,6 @@
 import React from 'react';
 import { TodoProvider, useTodos } from './context/TodoContext';
+import { ToastProvider } from './context/ToastContext';
 import TodoForm from './components/TodoForm/TodoForm';
 import TodoList from './components/TodoList/TodoList';
 import TodoFilters from './components/TodoFilters/TodoFilters';
@@ -13,9 +14,11 @@ import './App.css';
 function App() {
   return (
     <ErrorBoundary>
-      <TodoProvider>
-        <AppContent />
-      </TodoProvider>
+      <ToastProvider>
+        <TodoProvider>
+          <AppContent />
+        </TodoProvider>
+      </ToastProvider>
     </ErrorBoundary>
   );
 }
