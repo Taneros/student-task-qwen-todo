@@ -51,12 +51,12 @@
   font-weight: 600;
 }
 
-.dueDate.today {
+.dueDate.dueToday {
   color: #ff6b6b;
   font-weight: 600;
 }
 
-.dueDate.tomorrow {
+.dueDate.dueThisWeek {
   color: #ffa94d;
 }
 

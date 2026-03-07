@@ -1,6 +1,7 @@
 import React from 'react';
 import { useTodos } from '../context/TodoContext';
 import { useToast } from '../context/ToastContext';
+import { getDueDateStatus } from '../utils/dateUtils';
 import styles from './TodoItem.module.css';
 
 // Helper functions
@@ -12,23 +13,6 @@ const formatDate = (dateString) => {
     month: 'short',
     day: 'numeric'
   });
-};
-
-const getDueDateStatus = (dateString) => {
-  if (!dateString) return null;
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const dueDate = new Date(dateString);
-  dueDate.setHours(0, 0, 0, 0);
-  
-  const diffTime = dueDate - today;
-  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-  
-  if (diffDays < 0) return 'overdue';
-  if (diffDays === 0) return 'today';
-  if (diffDays === 1) return 'tomorrow';
-  if (diffDays <= 7) return 'upcoming';
-  return null;
 };
 
 /**

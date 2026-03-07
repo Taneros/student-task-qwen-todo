@@ -59,6 +59,8 @@ const TodoFilters = () => {
           <option value="active">Active</option>
           <option value="completed">Completed</option>
         </select>
+      </div>
+
       <div className={styles.filterGroup}>
         <label htmlFor="dueDate" className={styles.label}>
           Due Date:
@@ -77,6 +79,11 @@ const TodoFilters = () => {
           <option value="upcoming">Upcoming</option>
         </select>
       </div>
+
+      <div className={styles.filterGroup}>
+        <label htmlFor="sortBy" className={styles.label}>
+          Sort by:
+        </label>
         <select
           id="sortBy"
           value={filters.sortBy}
