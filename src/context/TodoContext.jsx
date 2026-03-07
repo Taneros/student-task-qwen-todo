@@ -1,4 +1,5 @@
 import React from 'react';
+import { useLocalStorage } from '../hooks/useLocalStorage';
 
 /**
  * @typedef {Object} Todo
@@ -36,7 +37,8 @@ const TodoContext = React.createContext(null);
  * @returns {JSX.Element}
  */
 export const TodoProvider = ({ children }) => {
-  const [todos, setTodos] = React.useState([]);
+  const initialTodos = React.useMemo(() => [], []);
+  const [todos, setTodos, { isLoading: todosLoading, error: todosError }] = useLocalStorage('todos', initialTodos);
   const [filters, setFilters] = React.useState({
     search: '',
     status: 'all', // 'all', 'active', 'completed'
@@ -53,11 +55,11 @@ export const TodoProvider = ({ children }) => {
       createdAt: new Date().toISOString(),
     };
     setTodos(prev => [newTodo, ...prev]);
-  }, []);
+  }, [setTodos]);
 
   const deleteTodo = React.useCallback((id) => {
     setTodos(prev => prev.filter(todo => todo.id !== id));
-  }, []);
+  }, [setTodos]);
 
   const updateTodo = React.useCallback((id, updates) => {
     setTodos(prev =>
@@ -65,7 +67,7 @@ export const TodoProvider = ({ children }) => {
         todo.id === id ? { ...todo, ...updates } : todo
       )
     );
-  }, []);
+  }, [setTodos]);
 
   const toggleComplete = React.useCallback((id) => {
     updateTodo(id, { completed: !todos.find(t => t.id === id)?.completed });
@@ -79,7 +81,9 @@ export const TodoProvider = ({ children }) => {
     deleteTodo,
     updateTodo,
     toggleComplete,
-  }), [todos, filters, addTodo, deleteTodo, updateTodo, toggleComplete]);
+    isLoading: todosLoading,
+    error: todosError,
+  }), [todos, filters, addTodo, deleteTodo, updateTodo, toggleComplete, todosLoading, todosError]);
 
   return (
     <TodoContext.Provider value={value}>
@@ -90,7 +94,7 @@ export const TodoProvider = ({ children }) => {
 
 /**
  * Custom hook to use TodoContext
- * @returns {TodoState & TodoActions}
+ * @returns {TodoState & TodoActions & {isLoading: boolean, error: Object|null}}
  */
 export const useTodos = () => {
   const context = React.useContext(TodoContext);

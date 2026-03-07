@@ -1,5 +1,5 @@
 import React from 'react';
-import { TodoProvider } from './context/TodoContext';
+import { TodoProvider, useTodos } from './context/TodoContext';
 import TodoForm from './components/TodoForm/TodoForm';
 import TodoList from './components/TodoList/TodoList';
 import TodoFilters from './components/TodoFilters/TodoFilters';
@@ -14,18 +14,60 @@ function App() {
   return (
     <ErrorBoundary>
       <TodoProvider>
-        <div className="App">
-          <header className="App-header">
-            <h1>My Todo App</h1>
-          </header>
-          <main className="App-main">
-            <TodoForm />
-            <TodoFilters />
-            <TodoList />
-          </main>
-        </div>
+        <AppContent />
       </TodoProvider>
     </ErrorBoundary>
+  );
+}
+
+/**
+ * App content with loading and error handling
+ * @returns {JSX.Element}
+ */
+function AppContent() {
+  const { isLoading, error } = useTodos();
+
+  if (isLoading) {
+    return (
+      <div className="App">
+        <header className="App-header">
+          <h1>My Todo App</h1>
+        </header>
+        <main className="App-main">
+          <div className="loading">Loading todos...</div>
+        </main>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="App">
+        <header className="App-header">
+          <h1>My Todo App</h1>
+        </header>
+        <main className="App-main">
+          <div className="error">
+            <h2>Failed to load todos</h2>
+            <p>{error.message}</p>
+            <button onClick={() => window.location.reload()}>Retry</button>
+          </div>
+        </main>
+      </div>
+    );
+  }
+
+  return (
+    <div className="App">
+      <header className="App-header">
+        <h1>My Todo App</h1>
+      </header>
+      <main className="App-main">
+        <TodoForm />
+        <TodoFilters />
+        <TodoList />
+      </main>
+    </div>
   );
 }
 

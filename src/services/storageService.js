@@ -53,3 +53,36 @@ export const putInDB = (db, key, value) => {
     request.onerror = () => reject(request.error);
   });
 };
+
+/**
+ * Load data from storage
+ * @param {string} key
+ * @param {*} defaultValue
+ * @returns {Promise<*>}
+ */
+export const loadFromStorage = async (key, defaultValue) => {
+  try {
+    const db = await openDB();
+    const value = await getFromDB(db, key);
+    return value !== undefined ? value : defaultValue;
+  } catch (error) {
+    console.error('Failed to load from storage:', error);
+    throw error;
+  }
+};
+
+/**
+ * Save data to storage
+ * @param {string} key
+ * @param {*} value
+ * @returns {Promise<void>}
+ */
+export const saveToStorage = async (key, value) => {
+  try {
+    const db = await openDB();
+    await putInDB(db, key, value);
+  } catch (error) {
+    console.error('Failed to save to storage:', error);
+    throw error;
+  }
+};

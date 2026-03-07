@@ -1,4 +1,5 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { loadFromStorage, saveToStorage } from '../services/storageService';
 
 /**
  * Custom hook for async local storage with IndexedDB
@@ -8,19 +9,18 @@ import { useState, useEffect, useCallback } from 'react';
  */
 export const useLocalStorage = (key, initialValue) => {
   const [storedValue, setStoredValue] = useState(initialValue);
+  const storedValueRef = useRef(initialValue);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Load from IndexedDB on mount
+  // Load from storage on mount
   useEffect(() => {
-    const loadFromStorage = async () => {
+    const loadData = async () => {
       try {
         setIsLoading(true);
-        const db = await openDB();
-        const value = await getFromDB(db, key);
-        if (value !== undefined) {
-          setStoredValue(value);
-        }
+        const value = await loadFromStorage(key, initialValue);
+        setStoredValue(value);
+        storedValueRef.current = value;
         setError(null);
       } catch (err) {
         setError({
@@ -34,18 +34,17 @@ export const useLocalStorage = (key, initialValue) => {
       }
     };
 
-    loadFromStorage();
-  }, [key]);
+    loadData();
+  }, [key, initialValue]);
 
-  // Save to IndexedDB when value changes
+  // Save to storage when value changes
   const setValue = useCallback(
     async (value) => {
       try {
-        const valueToStore = value instanceof Function ? value(storedValue) : value;
+        const valueToStore = value instanceof Function ? value(storedValueRef.current) : value;
         setStoredValue(valueToStore);
-
-        const db = await openDB();
-        await putInDB(db, key, valueToStore);
+        storedValueRef.current = valueToStore;
+        await saveToStorage(key, valueToStore);
         setError(null);
       } catch (err) {
         setError({
@@ -54,49 +53,12 @@ export const useLocalStorage = (key, initialValue) => {
           originalError: err
         });
         console.error('Storage save error:', err);
+        // Revert local state on save failure
+        setStoredValue(storedValueRef.current);
       }
     },
-    [key, storedValue]
+    [key]
   );
 
   return [storedValue, setValue, { isLoading, error }];
-};
-
-// IndexedDB helpers
-const DB_NAME = 'TodoDB';
-const DB_VERSION = 1;
-const STORE_NAME = 'todos';
-
-const openDB = () => {
-  return new Promise((resolve, reject) => {
-    const request = indexedDB.open(DB_NAME, DB_VERSION);
-    request.onupgradeneeded = (e) => {
-      const db = e.target.result;
-      if (!db.objectStoreNames.contains(STORE_NAME)) {
-        db.createObjectStore(STORE_NAME);
-      }
-    };
-    request.onsuccess = () => resolve(request.result);
-    request.onerror = () => reject(request.error);
-  });
-};
-
-const getFromDB = (db, key) => {
-  return new Promise((resolve, reject) => {
-    const transaction = db.transaction([STORE_NAME], 'readonly');
-    const store = transaction.objectStore(STORE_NAME);
-    const request = store.get(key);
-    request.onsuccess = () => resolve(request.result);
-    request.onerror = () => reject(request.error);
-  });
-};
-
-const putInDB = (db, key, value) => {
-  return new Promise((resolve, reject) => {
-    const transaction = db.transaction([STORE_NAME], 'readwrite');
-    const store = transaction.objectStore(STORE_NAME);
-    const request = store.put(value, key);
-    request.onsuccess = () => resolve();
-    request.onerror = () => reject(request.error);
-  });
 };

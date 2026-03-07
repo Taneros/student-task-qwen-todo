@@ -26,6 +26,40 @@
   flex-direction: column;
 }
 
+.loading {
+  text-align: center;
+  padding: 2rem;
+  color: #666;
+  font-style: italic;
+}
+
+.error {
+  text-align: center;
+  padding: 2rem;
+  color: #721c24;
+  background-color: #f8d7da;
+  border: 1px solid #f5c6cb;
+  border-radius: 8px;
+}
+
+.error h2 {
+  margin-top: 0;
+}
+
+.error button {
+  margin-top: 1rem;
+  padding: 0.5rem 1rem;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.error button:hover {
+  background-color: #0056b3;
+}
+
 @media (max-width: 640px) {
   #root {
     padding: 1rem;
