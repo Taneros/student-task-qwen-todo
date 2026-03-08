@@ -21,6 +21,10 @@ const ToastContext = React.createContext(null);
 export const ToastProvider = ({ children }) => {
   const [toasts, setToasts] = React.useState([]);
 
+  const removeToast = React.useCallback((id) => {
+    setToasts(prev => prev.filter(toast => toast.id !== id));
+  }, []);
+
   const addToast = React.useCallback((message, actionText, onAction, duration = 8000) => {
     const id = Date.now().toString();
     const toast = {
@@ -39,11 +43,7 @@ export const ToastProvider = ({ children }) => {
     }, duration + 300);
 
     return id;
-  }, []);
-
-  const removeToast = React.useCallback((id) => {
-    setToasts(prev => prev.filter(toast => toast.id !== id));
-  }, []);
+  }, [removeToast]);
 
   const value = React.useMemo(() => ({
     addToast,
@@ -53,7 +53,12 @@ export const ToastProvider = ({ children }) => {
   return (
     <ToastContext.Provider value={value}>
       {children}
-      <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, pointerEvents: 'none', zIndex: 1000 }}>
+      <div 
+        style={{ position: 'fixed', bottom: 0, left: 0, right: 0, pointerEvents: 'none', zIndex: 1000 }}
+        role="region"
+        aria-live="polite"
+        aria-label="Notifications"
+      >
         {toasts.map((toast, index) => (
           <div
             key={toast.id}

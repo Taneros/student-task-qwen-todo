@@ -1,6 +1,7 @@
 import React from 'react';
 import { useTodos } from '../context/TodoContext';
 import { useToast } from '../context/ToastContext';
+import { useUndo } from '../context/UndoContext';
 import { getDueDateStatus } from '../utils/dateUtils';
 import styles from './TodoItem.module.css';
 
@@ -22,7 +23,8 @@ const formatDate = (dateString) => {
  * @returns {JSX.Element}
  */
 const TodoItem = React.memo(({ todo }) => {
-  const { updateTodo, deleteTodo, undoDeleteTodo } = useTodos();
+  const { updateTodo, deleteTodo } = useTodos();
+  const { undoDeleteTodo } = useUndo();
   const { addToast } = useToast();
 
   const handleToggle = React.useCallback(() => {

@@ -5,9 +5,10 @@ import { loadFromStorage, saveToStorage } from '../services/storageService';
  * Custom hook for async local storage with IndexedDB
  * @param {string} key - Storage key
  * @param {*} initialValue - Initial value
+ * @param {number} debounceMs - Debounce delay for saves
  * @returns {[*, function, {isLoading: boolean, error: Object|null}]}
  */
-export const useLocalStorage = (key, initialValue) => {
+export const useLocalStorage = (key, initialValue, debounceMs = 500) => {
   const [storedValue, setStoredValue] = useState(initialValue);
   const storedValueRef = useRef(initialValue);
   const [isLoading, setIsLoading] = useState(true);
@@ -37,14 +38,20 @@ export const useLocalStorage = (key, initialValue) => {
     loadData();
   }, [key, initialValue]);
 
-  // Save to storage when value changes
-  const setValue = useCallback(
-    async (value) => {
+  // Set value (local state update, save is debounced)
+  const setValue = useCallback((value) => {
+    const valueToStore = value instanceof Function ? value(storedValueRef.current) : value;
+    setStoredValue(valueToStore);
+    storedValueRef.current = valueToStore;
+  }, []);
+
+  // Save to storage when value changes (debounced)
+  useEffect(() => {
+    if (isLoading) return; // Don't save during initial load
+
+    const timer = setTimeout(async () => {
       try {
-        const valueToStore = value instanceof Function ? value(storedValueRef.current) : value;
-        setStoredValue(valueToStore);
-        storedValueRef.current = valueToStore;
-        await saveToStorage(key, valueToStore);
+        await saveToStorage(key, storedValueRef.current);
         setError(null);
       } catch (err) {
         setError({
@@ -56,9 +63,10 @@ export const useLocalStorage = (key, initialValue) => {
         // Revert local state on save failure
         setStoredValue(storedValueRef.current);
       }
-    },
-    [key]
-  );
+    }, debounceMs);
+
+    return () => clearTimeout(timer);
+  }, [storedValue, key, debounceMs, isLoading]);
 
   return [storedValue, setValue, { isLoading, error }];
 };

@@ -1,5 +1,6 @@
 import React from 'react';
 import { useTodos } from '../../context/TodoContext';
+import { useFilters } from '../../context/FilterContext';
 import { useTodoFilters } from '../../hooks/useTodoFilters';
 import TodoItem from '../TodoItem';
 import styles from './TodoList.module.css';
@@ -9,7 +10,8 @@ import styles from './TodoList.module.css';
  * @returns {JSX.Element}
  */
 const TodoList = () => {
-  const { todos, filters } = useTodos();
+  const { todos } = useTodos();
+  const { filters } = useFilters();
   const filteredTodos = useTodoFilters(todos, filters);
 
   if (filteredTodos.length === 0) {

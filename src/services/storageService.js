@@ -1,4 +1,6 @@
 // IndexedDB service for storage abstraction
+import { createStorageError } from '../utils/errorHandling';
+
 const DB_NAME = 'TodoDB';
 const DB_VERSION = 1;
 const STORE_NAME = 'todos';
@@ -72,17 +74,22 @@ export const loadFromStorage = async (key, defaultValue) => {
 };
 
 /**
- * Save data to storage
+ * Save data to storage with retry logic
  * @param {string} key
  * @param {*} value
+ * @param {number} retries
  * @returns {Promise<void>}
  */
-export const saveToStorage = async (key, value) => {
-  try {
-    const db = await openDB();
-    await putInDB(db, key, value);
-  } catch (error) {
-    console.error('Failed to save to storage:', error);
-    throw error;
+export const saveToStorage = async (key, value, retries = 3) => {
+  for (let i = 0; i < retries; i++) {
+    try {
+      const db = await openDB();
+      await putInDB(db, key, value);
+      return;
+    } catch (error) {
+      console.error(`Failed to save to storage (attempt ${i + 1}):`, error);
+      if (i === retries - 1) throw createStorageError('Failed to save todos');
+      await new Promise(resolve => setTimeout(resolve, 1000 * (i + 1)));
+    }
   }
 };

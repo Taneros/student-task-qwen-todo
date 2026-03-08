@@ -1,5 +1,6 @@
 import React from 'react';
 import { useTodos } from '../../context/TodoContext';
+import { validateTodoText, sanitizeInput } from '../../utils/validation';
 import styles from './TodoForm.module.css';
 
 /**
@@ -10,18 +11,28 @@ const TodoForm = () => {
   const { addTodo } = useTodos();
   const [input, setInput] = React.useState('');
   const [dueDate, setDueDate] = React.useState('');
+  const [validationError, setValidationError] = React.useState(null);
 
   const handleSubmit = React.useCallback((e) => {
     e.preventDefault();
-    if (input.trim()) {
-      addTodo(input.trim(), dueDate || null);
-      setInput('');
-      setDueDate('');
+    const error = validateTodoText(input);
+    if (error) {
+      setValidationError(error);
+      return;
     }
+    addTodo(sanitizeInput(input), dueDate || null);
+    setInput('');
+    setDueDate('');
+    setValidationError(null);
   }, [input, dueDate, addTodo]);
 
   return (
     <form onSubmit={handleSubmit} className={styles.form}>
+      {validationError && (
+        <div className={styles.error} role="alert">
+          {validationError}
+        </div>
+      )}
       <label htmlFor="todo-input" className={styles.label}>
         Add a new todo:
       </label>

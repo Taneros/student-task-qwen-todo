@@ -1,5 +1,7 @@
 import React from 'react';
 import { TodoProvider, useTodos } from './context/TodoContext';
+import { FilterProvider } from './context/FilterContext';
+import { UndoProvider } from './context/UndoContext';
 import { ToastProvider } from './context/ToastContext';
 import TodoForm from './components/TodoForm/TodoForm';
 import TodoList from './components/TodoList/TodoList';
@@ -16,7 +18,11 @@ function App() {
     <ErrorBoundary>
       <ToastProvider>
         <TodoProvider>
-          <AppContent />
+          <FilterProvider>
+            <UndoProvider>
+              <AppContent />
+            </UndoProvider>
+          </FilterProvider>
         </TodoProvider>
       </ToastProvider>
     </ErrorBoundary>

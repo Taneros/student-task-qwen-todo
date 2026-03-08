@@ -1,5 +1,5 @@
 import React from 'react';
-import { useTodos } from '../../context/TodoContext';
+import { useFilters } from '../../context/FilterContext';
 import styles from './TodoFilters.module.css';
 
 /**
@@ -7,7 +7,7 @@ import styles from './TodoFilters.module.css';
  * @returns {JSX.Element}
  */
 const TodoFilters = () => {
-  const { filters, setFilters } = useTodos();
+  const { filters, setFilters } = useFilters();
 
   const handleSearchChange = React.useCallback((e) => {
     setFilters({ search: e.target.value });

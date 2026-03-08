@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { useDebounce } from './useDebounce';
+import { getTodayDateAtMidnight, getNextWeekDate } from '../utils/dateUtils';
 
 /**
  * Custom hook for optimized filtering, searching, and sorting
@@ -23,10 +24,8 @@ export const useTodoFilters = (todos, filters) => {
 
     // 2. Due date filter
     if (filters.dueDate !== 'all') {
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      const nextWeek = new Date(today);
-      nextWeek.setDate(today.getDate() + 7);
+      const today = getTodayDateAtMidnight();
+      const nextWeek = getNextWeekDate(today);
 
       result = result.filter(todo => {
         if (!todo.dueDate) {
