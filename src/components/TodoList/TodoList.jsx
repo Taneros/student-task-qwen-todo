@@ -2,7 +2,7 @@ import React from 'react';
 import { useTodos } from '../../context/TodoContext';
 import { useFilters } from '../../context/FilterContext';
 import { useTodoFilters } from '../../hooks/useTodoFilters';
-import TodoItem from '../TodoItem';
+import TodoItem from '../TodoItem/TodoItem';
 import styles from './TodoList.module.css';
 
 /**

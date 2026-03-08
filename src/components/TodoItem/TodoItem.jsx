@@ -1,8 +1,8 @@
 import React from 'react';
-import { useTodos } from '../context/TodoContext';
-import { useToast } from '../context/ToastContext';
-import { useUndo } from '../context/UndoContext';
-import { getDueDateStatus } from '../utils/dateUtils';
+import { useTodos } from '../../context/TodoContext';
+import { useToast } from '../../context/ToastContext';
+import { useUndo } from '../../context/UndoContext';
+import { getDueDateStatus } from '../../utils/dateUtils';
 import styles from './TodoItem.module.css';
 
 // Helper functions
